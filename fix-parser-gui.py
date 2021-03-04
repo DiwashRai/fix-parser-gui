@@ -7,20 +7,10 @@ class ParseFIX(tk.Frame):
     def __init__(self, root):
         self.root = root
         self.mainframe = tk.Frame(self.root, padx=20, pady=20)
-        self.mainframe.pack()
+        self.mainframe.pack(fill="both", expand=True)
 
         self.entry_frame = tk.Frame(master=self.mainframe, padx=5, pady=5, relief=tk.SOLID, borderwidth=1)
-        self.entry_frame.pack()
-
-        self.output_canvas = tk.Canvas(master=self.mainframe, background="yellow")
-        self.output_frame = tk.Frame(master=self.output_canvas, background="white")
-        self.scrollbar = tk.Scrollbar(master=self.mainframe, orient="vertical", command=self.output_canvas.yview)
-        self.output_canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        self.scrollbar.pack(side="right", fill="y")
-        self.output_canvas.pack(side="left", fill="both", expand=True)
-        self.output_canvas.create_window((4,4), window=self.output_frame, anchor="nw", tags="self.frame")
-        self.output_frame.bind("<Configure>", self.onFrameConfigure)
+        self.entry_frame.pack(anchor="nw")
 
         entry_label1 = tk.Label(master=self.entry_frame, text="FIX String: ", width=25)
         entry_label1.grid(row=0, column=0)
@@ -29,6 +19,16 @@ class ParseFIX(tk.Frame):
         fix_string_entry.grid(row=0, column=1)
         parse_btn = tk.Button(master=self.entry_frame, text="PARSE", command=self.parse)
         parse_btn.grid(row=1, column=0)
+
+        self.output_canvas = tk.Canvas(master=self.mainframe, highlightthickness=0)
+        self.output_frame = tk.Frame(master=self.output_canvas, padx=5, pady=5, relief=tk.SOLID, borderwidth=1)
+        self.output_scrollbar = tk.Scrollbar(master=self.mainframe, orient="vertical", command=self.output_canvas.yview)
+        self.output_canvas.configure(yscrollcommand=self.output_scrollbar.set)
+
+        self.output_scrollbar.pack(side="right", fill="y")
+        self.output_canvas.pack(side="left", fill="both", expand=True)
+        self.output_canvas.create_window((4,4), window=self.output_frame, anchor="nw", tags="self.output_frame")
+        self.output_frame.bind("<Configure>", self.onFrameConfigure)
 
         self.parse()
 
@@ -57,9 +57,6 @@ class ParseFIX(tk.Frame):
             entry2 = tk.Entry(master=self.output_frame)
             entry2.insert(0, tag_value)
             entry2.grid(row=i, column=1)
-
-        self.scrollbar.config(command=self.output_canvas.yview)
-
 
 
 if __name__ == "__main__":
