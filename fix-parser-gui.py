@@ -1,5 +1,6 @@
 
 import tkinter as tk
+import tkinter.ttk as ttk
 import re
 
 
@@ -12,13 +13,21 @@ class ParseFIX(tk.Frame):
         self.entry_frame = tk.Frame(master=self.mainframe, padx=5, pady=5, relief=tk.SOLID, borderwidth=1)
         self.entry_frame.pack(anchor="nw")
 
+        data_dictionary_label = tk.Label(master=self.entry_frame, text="Data Dictionary: ", width=25)
+        data_dictionary_label.grid(row=0, column=0)
+        self.data_dictionary_path = tk.StringVar()
+        data_dictionary_path_entry = tk.Entry(master=self.entry_frame, width=100, textvariable=self.data_dictionary_path)
+        data_dictionary_path_entry.grid(row=0, column=1)
+        load_btn = tk.Button(master=self.entry_frame, text="LOAD", command=self.load)
+        load_btn.grid(row=1, column=0)
+
         entry_label1 = tk.Label(master=self.entry_frame, text="FIX String: ", width=25)
-        entry_label1.grid(row=0, column=0)
+        entry_label1.grid(row=2, column=0)
         self.fix_string = tk.StringVar()
         fix_string_entry = tk.Entry(master=self.entry_frame, width=100, textvariable=self.fix_string)
-        fix_string_entry.grid(row=0, column=1)
+        fix_string_entry.grid(row=2, column=1)
         parse_btn = tk.Button(master=self.entry_frame, text="PARSE", command=self.parse)
-        parse_btn.grid(row=1, column=0)
+        parse_btn.grid(row=3, column=0)
 
         self.output_canvas = tk.Canvas(master=self.mainframe, highlightthickness=0)
         self.output_frame = tk.Frame(master=self.output_canvas, padx=5, pady=5, relief=tk.SOLID, borderwidth=1)
@@ -38,9 +47,13 @@ class ParseFIX(tk.Frame):
         self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all"))
 
 
+    def load(self):
+         self.data_dictionary_path.set("C:/Projects/TradeWeb/DD.xml")
+
+
     def parse(self):
         # fix_str = self.fix_string.get()
-        fix_str = "8=FIX.4.19=6135=A34=149=EXEC52=20121105-23:24:0656=BANZAI98=0108=3010=0038=FIX.4.19=6135=A34=149=BANZAI52=20121105-23:24:0656=EXEC98=0108=3010=0038=FIX.4.19=4935=034=249=BANZAI52=20121105-23:24:3756=EXEC10=2288=FIX.4.19=4935=034=249=EXEC52=20121105-23:24:3756=BANZAI10=2288=FIX.4.19=10335=D34=349=BANZAI52=20121105-23:24:4256=EXEC11=135215788257721=138=1000040=154=155=MSFT59=010=0628=FIX.4.19=13935=834=349=EXEC52=20121105-23:24:4256=BANZAI6=011=135215788257714=017=120=031=032=037=138=1000039=054=155=MSFT150=2151=010=0598=FIX.4.19=15335=834=449=EXEC52=20121105-23:24:4256=BANZAI6=12.311=135215788257714=1000017=220=031=12.332=1000037=238=1000039=254=155=MSFT150=2151=010=2308=FIX.4.19=10335=D34=449=BANZAI52=20121105-23:24:5556=EXEC11=135215789503221=138=1000040=154=155=ORCL59=010=0478=FIX.4.19=13935=834=549=EXEC52=20121105-23:24:5556=BANZAI6=011=135215789503214=017=320=031=032=037=338=1000039=054=155=ORCL150=2151=010=0498=FIX.4.19=15335=834=649=EXEC52=20121105-23:24:5556=BANZAI6=12.311=135215789503214=1000017=420=031=12.332=1000037=438=1000039=254=155=ORCL150=2151=010=2208=FIX.4.19=10835=D34=549=BANZAI52=20121105-23:25:1256=EXEC11=135215791235721=138=1000040=244=1054=155=SPY59=010=0038=FIX.4.19=13835=834=749=EXEC52=20121105-23:25:1256=BANZAI6=011=135215791235714=017=520=031=032=037=538=1000039=054=155=SPY150=2151=010=2528=FIX.4.19=10435=F34=649=BANZAI52=20121105-23:25:1656=EXEC11=135215791643738=1000041=135215791235754=155=SPY10=1988=FIX.4.19=8235=334=849=EXEC52=20121105-23:25:1656=BANZAI45=658=Unsupported message type10=0008=FIX.4.19=10435=F34=749=BANZAI52=20121105-23:25:2556=EXEC11=135215792530938=1000041=135215791235754=155=SPY10=1978=FIX.4.19=8235=334=949=EXEC52=20121105-23:25:2556=BANZAI45=758=Unsupported message type10=002"
+        fix_str = "8=FIX.4.4|9=954|35=AE|34=470|49=CMEGROUP|50=STP|52=20200708-21:26:50.297|56=GFE_GFEU1|57=URU27|571=1732375C2B41018D15D462404335766459502|487=0|856=101|568=3|828=0|820=140008662|880=4219245|17=4290:M:1187TN0028998|423=9|55=U07-25:R4TWM6TTV63R|48=U07-25|22=H|454=1|455=9128286F2|456=1|167=REPO|762=SPEC|207=BTUS|107=2_1/2_02/26 REG|916=20200709|917=20200710|711=1|311=[N/A]|810=111.82421875|882=112.625|32=1000|31=1.000000000|75=20200708|715=20200708|442=1|60=20200708-21:07:05.570212592Z|64=20200709|552=1|54=2|37=42202810|11=234|453=5|448=GFEU2|447=D|452=1|802=2|523=AUTO CERT TEST FIRM GFEU2|803=5|523=G8ZTNESVNKW4NN761W05|803=84|448=gfe_btec_qai_us2|447=C|452=7|448=FICC|447=C|452=21|448=URU22|452=44|448=EED|452=55|578=GLBX|921=1126250000.00|922=1126281284.72|1016=1|1012=20200708-21:07:05.570212592Z|1013=1|1057=N|779=20200708-21:07:05.671000000Z|1003=260819|1040=1732375C2B41018D15D48|939=0|1430=E|10026=USD|1832=1|37513=644707884226771825|10053=N|20056=R0000260819|20011=101124|2490=28998|10=176|"
         tags_list = re.split("\||\^|", fix_str)
         for i in range(len(tags_list)):
             pair = tags_list[i].split("=")
@@ -51,12 +64,17 @@ class ParseFIX(tk.Frame):
             tag_number = pair[0]
             tag_value = pair[1]
 
-            entry1 = tk.Entry(master=self.output_frame)
-            entry1.insert(0, tag_number)
-            entry1.grid(row=i, column=0)
-            entry2 = tk.Entry(master=self.output_frame)
-            entry2.insert(0, tag_value)
-            entry2.grid(row=i, column=1)
+            text1 = tk.Text(master=self.output_frame, height=1, width=10)
+            text1.insert(tk.END, tag_number)
+            text1.grid(row=i, column=0)
+            text2 = tk.Text(master=self.output_frame, height=1, width=40)
+            text2.insert(tk.END, tag_value)
+            text2.grid(row=i, column=1)
+            combo = ttk.Combobox(master=self.output_frame, values=["alpha", "bravo", "charlie", "delta"])
+            combo.grid(row=i, column=2)
+
+            text1.configure(state="disabled")
+            # text2.configure(state="disabled")
 
 
 if __name__ == "__main__":
