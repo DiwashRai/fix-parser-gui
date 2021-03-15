@@ -32,13 +32,15 @@ class ParseFIX(tk.Frame):
         parse_btn = tk.Button(master=self.entry_frame, text="PARSE", command=self.parse)
         parse_btn.grid(row=7, column=0)
 
-        self.output_canvas = tk.Canvas(master=self.mainframe, highlightthickness=0)
+        self.output_notebook = ttk.Notebook(master=self.mainframe)
+        self.output_canvas = tk.Canvas(master=self.output_notebook, highlightthickness=0)
+        self.output_notebook.pack(side="left", fill="both", expand=True)
         self.output_frame = tk.Frame(master=self.output_canvas, padx=5, pady=5, relief=tk.SOLID, borderwidth=1)
         self.output_scrollbar = tk.Scrollbar(master=self.mainframe, orient="vertical", command=self.output_canvas.yview)
         self.output_canvas.configure(yscrollcommand=self.output_scrollbar.set)
 
         self.output_scrollbar.pack(side="right", fill="y")
-        self.output_canvas.pack(side="left", fill="both", expand=True)
+        self.output_notebook.add(self.output_canvas, text="Msg 1")
         self.output_canvas.create_window((4,4), window=self.output_frame, anchor="nw", tags="self.output_frame")
         self.output_frame.bind("<Configure>", self.onFrameConfigure)
 
