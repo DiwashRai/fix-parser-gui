@@ -10,9 +10,9 @@ class ParseFIX(tk.Frame):
     def __init__(self, root):
         self.root = root
         self.mainframe = tk.Frame(self.root, padx=20, pady=20)
-        self.mainframe.pack(fill="both", expand=True)
+        self.mainframe.pack(fill=tk.BOTH, expand=True)
 
-        self.entry_frame = tk.Frame(master=self.mainframe, padx=5, pady=5, relief=tk.SOLID, borderwidth=1)
+        self.entry_frame = tk.Frame(master=self.mainframe, padx=5, pady=5)
         self.entry_frame.pack(anchor="nw")
 
         data_dictionary_label = tk.Label(master=self.entry_frame, text="Data Dictionary: ", width=12)
@@ -21,29 +21,19 @@ class ParseFIX(tk.Frame):
         data_dictionary_path_entry = tk.Entry(master=self.entry_frame, width=100, textvariable=self.data_dictionary_path, disabledbackground="white")
         data_dictionary_path_entry.grid(row=0, column=1)
         data_dictionary_path_entry.configure(state="disabled")
-        load_btn = tk.Button(master=self.entry_frame, text="LOAD", command=self.load)
+        load_btn = ttk.Button(master=self.entry_frame, text="LOAD", command=self.load)
         load_btn.grid(row=0, column=2)
 
         empty_label = tk.Label(master=self.entry_frame, text ="")
         empty_label.grid(row=1, column=0)
 
-        self.output_notebook = ttk.Notebook(master=self.mainframe)
-        self.output_notebook.pack(side="left", fill="both", expand=True)
-
-        # self.output_canvas = tk.Canvas(master=self.output_notebook, highlightthickness=0)
-        # self.output_scrollbar = tk.Scrollbar(master=self.mainframe, orient="vertical", command=self.output_canvas.yview)
-        # self.output_canvas.configure(yscrollcommand=self.output_scrollbar.set)
-        # self.output_scrollbar.pack(side="right", fill="y")
-
         self.text_box = tk.Text(master=self.entry_frame, width=100, height=10, wrap="none")
-        self.text_box.grid(row=6, column=1)
-        parse_btn = tk.Button(master=self.entry_frame, text="PARSE", command=self.parse)
-        parse_btn.grid(row=7, column=1)
+        self.text_box.grid(row=2, column=1)
+        parse_btn = ttk.Button(master=self.entry_frame, text="PARSE", command=self.parse)
+        parse_btn.grid(row=3, column=1)
 
-
-    def onFrameConfigure(self, event):
-        '''Reset the scroll region to encompass the inner frame'''
-        self.output_canvas.configure(scrollregion=self.output_canvas.bbox("all"))
+        self.output_notebook = ttk.Notebook(master=self.mainframe)
+        self.output_notebook.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
     def load(self):
@@ -59,12 +49,18 @@ class ParseFIX(tk.Frame):
 
 
     def addFIXTab(self, line, tab_name):
-        tags_list = re.split("\||\^|", line)
-        # output_frame = tk.Frame(master=self.output_canvas, padx=5, pady=5, relief=tk.SOLID, borderwidth=1)
-        # self.output_canvas.create_window((4,4), window=output_frame, anchor="nw", tags="output_frame")
-        # self.output_notebook.add(output_frame, text="Msg 1")
-        output_frame = tk.Frame(master=self.output_notebook)
-        self.output_notebook.add(output_frame, text=tab_name)
+        tab_container_frame = tk.Frame(master=self.output_notebook)
+        self.output_notebook.add(tab_container_frame, text=tab_name)
+
+        tab_canvas = tk.Canvas(master=tab_container_frame, highlightthickness=0)
+        output_frame = tk.Frame(tab_canvas)
+        container_scrollbar = tk.Scrollbar(master=tab_container_frame, orient="vertical", command=tab_canvas.yview)
+        tab_canvas.configure(yscrollcommand=container_scrollbar.set)
+        tab_canvas.bind("<Configure>", lambda e: tab_canvas.config(scrollregion=tab_canvas.bbox(tk.ALL)))
+
+        container_scrollbar.pack(side=tk.RIGHT, fill="y")
+        tab_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        tab_canvas.create_window((4,4), window=output_frame, anchor="nw")
 
         header1 = tk.Label(master=output_frame, height=1, text="Tag")
         header2 = tk.Label(master=output_frame, height=1, text="Tag Name")
@@ -74,6 +70,8 @@ class ParseFIX(tk.Frame):
         header2.grid(row=0, column=1)
         header3.grid(row=0, column=2)
         header4.grid(row=0, column=3)
+
+        tags_list = re.split("\||\^|", line)
         for i in range(1, len(tags_list) + 1):
             pair = tags_list[i - 1].split("=")
             if len(pair) == 1:
@@ -116,14 +114,12 @@ class ParseFIX(tk.Frame):
 
 
     def parse(self):
-        # for widget in self.output_frame.winfo_children():
-        #     widget.destroy()
+        while self.output_notebook.tabs():
+            self.output_notebook.forget(0)
         input_lines = self.text_box.get("1.0", "end").splitlines()
 
         for i in range(len(input_lines)):
             self.addFIXTab(input_lines[i], "Msg " + str(i))
-
-        self.root.update_idletasks()
 
 
 if __name__ == "__main__":
