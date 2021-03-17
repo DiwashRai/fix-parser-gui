@@ -2,6 +2,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.filedialog import askopenfilename
+from tkinter.scrolledtext import ScrolledText
 import xml.etree.ElementTree as ET
 import re
 
@@ -18,7 +19,7 @@ class ParseFIX(tk.Frame):
         data_dictionary_label = tk.Label(master=self.entry_frame, text="Data Dictionary: ", width=12)
         data_dictionary_label.grid(row=0, column=0)
         self.data_dictionary_path = tk.StringVar()
-        data_dictionary_path_entry = tk.Entry(master=self.entry_frame, width=100, textvariable=self.data_dictionary_path, disabledbackground="white")
+        data_dictionary_path_entry = tk.Entry(master=self.entry_frame, width=77, textvariable=self.data_dictionary_path, disabledbackground="white")
         data_dictionary_path_entry.grid(row=0, column=1)
         data_dictionary_path_entry.configure(state="disabled")
         load_btn = ttk.Button(master=self.entry_frame, text="LOAD", command=self.load)
@@ -27,13 +28,24 @@ class ParseFIX(tk.Frame):
         empty_label = tk.Label(master=self.entry_frame, text ="")
         empty_label.grid(row=1, column=0)
 
-        self.text_box = tk.Text(master=self.entry_frame, width=100, height=10, wrap="none")
+        text_box_label = tk.Label(master=self.entry_frame, text="Fix Strings: ")
+        text_box_label.grid(row=2, column=0, sticky="n")
+        self.text_box = ScrolledText(master=self.entry_frame, width=100, height=10, wrap="none")
         self.text_box.grid(row=2, column=1)
-        parse_btn = ttk.Button(master=self.entry_frame, text="PARSE", command=self.parse)
-        parse_btn.grid(row=3, column=1)
+        button_pane = tk.Frame(master=self.entry_frame)
+        button_pane.grid(row=3, column=1)
+        clear_btn = ttk.Button(master=button_pane, text="CLEAR", command=self.clear)
+        clear_btn.pack(side=tk.LEFT)
+        parse_btn = ttk.Button(master=button_pane, text="PARSE", command=self.parse)
+        parse_btn.pack(side=tk.LEFT)
+
 
         self.output_notebook = ttk.Notebook(master=self.mainframe)
         self.output_notebook.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+
+    def clear(self):
+        self.text_box.delete("1.0", tk.END)
 
 
     def load(self):
@@ -118,8 +130,13 @@ class ParseFIX(tk.Frame):
             self.output_notebook.forget(0)
         input_lines = self.text_box.get("1.0", "end").splitlines()
 
-        for i in range(len(input_lines)):
-            self.addFIXTab(input_lines[i], "Msg " + str(i))
+        tab_number = 1
+        for line in input_lines:
+            if not line or line[0] == "#":
+                continue
+
+            self.addFIXTab(line, "Msg " + str(tab_number))
+            tab_number += 1
 
 
 if __name__ == "__main__":
