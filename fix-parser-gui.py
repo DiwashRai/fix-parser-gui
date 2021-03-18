@@ -10,6 +10,7 @@ import re
 class ParseFIX(tk.Frame):
     def __init__(self, root):
         self.root = root
+        self.root.geometry("1000x600")
         self.mainframe = tk.Frame(self.root, padx=20, pady=20)
         self.mainframe.pack(fill=tk.BOTH, expand=True)
 
@@ -22,7 +23,7 @@ class ParseFIX(tk.Frame):
         data_dictionary_path_entry = tk.Entry(master=self.entry_frame, width=77, textvariable=self.data_dictionary_path, disabledbackground="white")
         data_dictionary_path_entry.grid(row=0, column=1)
         data_dictionary_path_entry.configure(state="disabled")
-        load_btn = ttk.Button(master=self.entry_frame, text="LOAD", command=self.load)
+        load_btn = ttk.Button(master=self.entry_frame, text="Load", command=self.load)
         load_btn.grid(row=0, column=2)
 
         empty_label = tk.Label(master=self.entry_frame, text ="")
@@ -34,18 +35,33 @@ class ParseFIX(tk.Frame):
         self.text_box.grid(row=2, column=1)
         button_pane = tk.Frame(master=self.entry_frame)
         button_pane.grid(row=3, column=1)
-        clear_btn = ttk.Button(master=button_pane, text="CLEAR", command=self.clear)
+        clear_btn = ttk.Button(master=button_pane, text="Clear", command=self.clear)
         clear_btn.pack(side=tk.LEFT)
-        parse_btn = ttk.Button(master=button_pane, text="PARSE", command=self.parse)
+        parse_btn = ttk.Button(master=button_pane, text="Parse", command=self.parse)
         parse_btn.pack(side=tk.LEFT)
 
+        search_pane = tk.Frame(master=self.mainframe)
+        search_pane.pack(anchor="nw")
+        self.search_str = tk.StringVar()
+        search_entry = tk.Entry(master=search_pane, width=10, textvariable=self.search_str)
+        search_entry.pack(side=tk.LEFT, padx=(20, 0))
+        search_btn = ttk.Button(master=search_pane, text="Search", command=self.search)
+        search_btn.pack(side=tk.LEFT)
 
         self.output_notebook = ttk.Notebook(master=self.mainframe)
-        self.output_notebook.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.output_notebook.pack(fill=tk.BOTH, expand=True)
+        self.text_widget_list = []
 
 
     def clear(self):
         self.text_box.delete("1.0", tk.END)
+
+
+    def search(self):
+        search_str = self.search_str.get().lower()
+        for text_widget in self.text_widget_list:
+            if text_widget.get("1.0", "end-1c").lower() == search_str:
+                text_widget.configure(bg="yellow")
 
 
     def load(self):
@@ -93,15 +109,18 @@ class ParseFIX(tk.Frame):
             tag_value = pair[1]
 
             tag_number_text = tk.Text(master=output_frame, height=1, width=6)
+            self.text_widget_list.append(tag_number_text)
             tag_number_text.insert(tk.END, tag_number)
             tag_number_text.grid(row=i, column=0)
 
             tag_name = self.fields.find(f"./field[@number='{tag_number}']").get("name")
             tag_name_text = tk.Text(master=output_frame, height=1, width=25)
+            self.text_widget_list.append(tag_name_text)
             tag_name_text.insert(tk.END, tag_name)
             tag_name_text.grid(row=i, column=1)
 
             tag_value_text = tk.Text(master=output_frame, height=1, width=40)
+            self.text_widget_list.append(tag_value_text)
             tag_value_text.insert(tk.END, tag_value)
             tag_value_text.grid(row=i, column=2)
 
@@ -126,6 +145,9 @@ class ParseFIX(tk.Frame):
 
 
     def parse(self):
+        self.text_widget_list = []
+        for child in self.output_notebook.winfo_children():
+            child.destroy()
         while self.output_notebook.tabs():
             self.output_notebook.forget(0)
         input_lines = self.text_box.get("1.0", "end").splitlines()
@@ -140,6 +162,6 @@ class ParseFIX(tk.Frame):
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = tk.Tk(className="FIX Parser GUI")
     ParseFIX(root)
     root.mainloop()
