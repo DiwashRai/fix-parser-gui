@@ -10,7 +10,7 @@ import re
 class ParseFIX(tk.Frame):
     def __init__(self, root):
         self.root = root
-        self.root.geometry("1000x600")
+        self.root.geometry("1050x600")
         self.mainframe = tk.Frame(self.root, padx=20, pady=20)
         self.mainframe.pack(fill=tk.BOTH, expand=True)
 
@@ -23,7 +23,7 @@ class ParseFIX(tk.Frame):
         data_dictionary_path_entry = tk.Entry(master=self.entry_frame, width=77, textvariable=self.data_dictionary_path, disabledbackground="white")
         data_dictionary_path_entry.grid(row=0, column=1)
         data_dictionary_path_entry.configure(state="disabled")
-        load_btn = ttk.Button(master=self.entry_frame, text="Load", command=self.load)
+        load_btn = ttk.Button(master=self.entry_frame, text="Load", command=self.load_dd)
         load_btn.grid(row=0, column=2)
 
         empty_label = tk.Label(master=self.entry_frame, text ="")
@@ -31,6 +31,8 @@ class ParseFIX(tk.Frame):
 
         text_box_label = tk.Label(master=self.entry_frame, text="Fix Strings: ")
         text_box_label.grid(row=2, column=0, sticky="n")
+        load_strings_btn = ttk.Button(master=self.entry_frame, text="Import", command=self.load_fix_file)
+        load_strings_btn.grid(row=2, column=2, sticky="n")
         self.text_box = ScrolledText(master=self.entry_frame, width=100, height=10, wrap="none")
         self.text_box.grid(row=2, column=1)
         button_pane = tk.Frame(master=self.entry_frame)
@@ -41,10 +43,10 @@ class ParseFIX(tk.Frame):
         parse_btn.pack(side=tk.LEFT)
 
         search_pane = tk.Frame(master=self.mainframe)
-        search_pane.pack(anchor="nw")
+        search_pane.pack()
         self.search_str = tk.StringVar()
-        search_entry = tk.Entry(master=search_pane, width=10, textvariable=self.search_str)
-        search_entry.pack(side=tk.LEFT, padx=(20, 0))
+        search_entry = tk.Entry(master=search_pane, width=50, textvariable=self.search_str)
+        search_entry.pack(side=tk.LEFT)
         search_btn = ttk.Button(master=search_pane, text="Search", command=self.search)
         search_btn.pack(side=tk.LEFT)
 
@@ -59,15 +61,21 @@ class ParseFIX(tk.Frame):
 
     def search(self):
         search_str = self.search_str.get().lower()
-        for text_widget in self.text_widget_list:
-            if text_widget.get("1.0", "end-1c").lower() == search_str:
-                text_widget.configure(bg="yellow")
+        search_list = [x.strip() for x in search_str.split(",")]
+        for search in search_list:
+            if not search:
+                continue
+            for text_widget in self.text_widget_list:
+                if text_widget.get("1.0", "end-1c").lower() == search:
+                    text_widget.configure(bg="yellow")
 
 
-    def load(self):
+    def load_dd(self):
         filepath = askopenfilename(
             filetypes=[("XML Files", "*.xml"), ("All Files", "*.*")]
         )
+        if not filepath:
+            return
         tree = ET.parse(filepath)
         root = tree.getroot()
         for child in root:
@@ -76,7 +84,16 @@ class ParseFIX(tk.Frame):
         self.data_dictionary_path.set(filepath)
 
 
-    def addFIXTab(self, line, tab_name):
+    def load_fix_file(self):
+        filepath = askopenfilename(
+            filetypes=[("Text files", "*.txt"), ("All Files", "*.*")]
+        )
+        if not filepath:
+            return
+        print(filepath)
+
+
+    def add_fix_tab(self, line, tab_name):
         tab_container_frame = tk.Frame(master=self.output_notebook)
         self.output_notebook.add(tab_container_frame, text=tab_name)
 
@@ -157,7 +174,7 @@ class ParseFIX(tk.Frame):
             if not line or line[0] == "#":
                 continue
 
-            self.addFIXTab(line, "Msg " + str(tab_number))
+            self.add_fix_tab(line, "Msg " + str(tab_number))
             tab_number += 1
 
 
