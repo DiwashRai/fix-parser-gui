@@ -90,7 +90,16 @@ class ParseFIX(tk.Frame):
         )
         if not filepath:
             return
-        print(filepath)
+
+        with open(filepath, "r") as input_file:
+            line = input_file.readline().lstrip(" ")
+            while line:
+                if line[0] == "#" or line[0] == "\n":
+                    line = input_file.readline().lstrip(" ")
+                    continue
+                self.text_box.insert(tk.END, line)
+                line = input_file.readline().lstrip(" ")
+
 
 
     def add_fix_tab(self, line, tab_name):
