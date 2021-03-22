@@ -159,7 +159,7 @@ class ParseFIX(tk.Frame):
                 enum_arr.append(enum.get("enum") + " : " + enum.get("description"))
 
             if enum_arr:
-                combo = ttk.Combobox(master=output_frame, values=enum_arr, state="readonly")
+                combo = ttk.Combobox(master=output_frame, values=enum_arr, state="readonly", width=40)
                 combo.grid(row=i, column=3)
                 meaning = field.find(f"./value[@enum='{tag_value}']")
                 enum = " (" + meaning.get("description") + ")"
