@@ -49,10 +49,17 @@ class ParseFIX(tk.Frame):
         search_entry.pack(side=tk.LEFT)
         search_btn = ttk.Button(master=search_pane, text="Search", command=self.search)
         search_btn.pack(side=tk.LEFT)
+        reset_btn = ttk.Button(master=search_pane, text="Reset", command=self.reset_search)
+        reset_btn.pack(side=tk.LEFT)
 
         self.output_notebook = ttk.Notebook(master=self.mainframe)
         self.output_notebook.pack(fill=tk.BOTH, expand=True)
         self.text_widget_list = []
+
+
+    def reset_search(self):
+        for text_widget in self.text_widget_list:
+            text_widget.configure(bg="white")
 
 
     def clear(self):
